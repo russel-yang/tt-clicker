@@ -6,7 +6,7 @@ import numpy as np
 import mss
 
 with mss.mss() as sct:
-    full_screen = cv2.cvtColor(np.array(ImageGrab.grab()), cv2.COLOR_RGB2BGR)
+    full_screen = np.array(sct.grab({"top": 0, "left": 0, "width": 2560, "height": 1440}))
     fs_gray = cv2.cvtColor(full_screen, cv2.COLOR_BGR2GRAY)
     gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
     mt_result = cv2.matchTemplate(fs_gray, gear, cv2.TM_CCOEFF_NORMED, 0.9)
