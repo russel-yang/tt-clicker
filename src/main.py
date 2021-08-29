@@ -36,6 +36,21 @@ def find_company(game):
             clicked = True
             break
 
+def find_skill(game):
+    skill = cv2.imread("assets/needles/skills/warcry.png", cv2.IMREAD_GRAYSCALE)
+    mt_result = cv2.matchTemplate(game, skill, cv2.TM_CCOEFF_NORMED)
+    
+    w, h = skill.shape[::-1]
+    loc = np.where( mt_result >= 0.9)
+    clicked = False
+    for pt in zip(*loc[::-1]):
+        # click the game window
+        if (clicked != True):
+            pyautogui.click(left + pt[0] / 2  + w / 4, top + pt[1] / 2 +  h / 4 )
+            print("found:", pt)
+            clicked = True
+            break
+
 def find_fairy(game):
     clan_mate = cv2.imread("assets/needles/fairy.png", cv2.IMREAD_GRAYSCALE)
     mt_result = cv2.matchTemplate(game, clan_mate, cv2.TM_CCOEFF_NORMED)
@@ -60,8 +75,9 @@ with mss.mss() as sct:
         game = np.array(tt2)
         game = cv2.cvtColor(game, cv2.COLOR_RGBA2GRAY)
 
-        find_fairy(game)
-        find_company(game)
+        #find_fairy(game)
+        #find_company(game)
+        find_skill(game)
 
         cv2.imshow('screen', game)
         print('fps ={}'.format(1/(time.time()-last_time)))
