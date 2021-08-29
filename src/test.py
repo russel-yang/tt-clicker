@@ -4,6 +4,10 @@ import cv2
 import mss
 import numpy
 
+def test(x):
+    if x > 10:
+        return 10,11
+    return None
 
 with mss.mss() as sct:
     #while True:
@@ -11,6 +15,8 @@ with mss.mss() as sct:
     monitor = {"top": 214, "left": 1934, "width": 600, "height": 1075}
 
     last_time = time.time()
+
+    print(test(9))
 
     # Get raw pixels from the screen, save it to a Numpy array
     img = numpy.array(sct.grab(monitor))

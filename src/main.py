@@ -4,67 +4,29 @@ from PIL import ImageGrab
 import cv2
 import numpy as np
 import mss
-import pytesseract
 import constants
+from vision import Vision
 
 def findGameWindowPos():
     with mss.mss() as sct:
         full_screen = np.array(sct.grab({"top": 0, "left": 0, "width": 2560, "height": 1440}))
+        coff = full_screen.shape[0] / 1440
         fs_gray = cv2.cvtColor(full_screen, cv2.COLOR_BGR2GRAY)
         gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
-        mt_result = cv2.matchTemplate(fs_gray, gear, cv2.TM_CCOEFF_NORMED, 0.9)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
+        mt_result = cv2.matchTemplate(fs_gray, gear, cv2.TM_CCOEFF_NORMED)
+        max_loc = cv2.minMaxLoc(mt_result)[3]
 
         x, y = max_loc
-        left = x / 2
-        top = y / 2
-    return (top, left)
+        left = x / coff
+        top = y / coff
+    return (top, left, coff)
 
-(top, left) = findGameWindowPos()
+(top, left, coff) = findGameWindowPos()
 
-def find_company(game):
-    clan_mate = cv2.imread("assets/needles/company.png", cv2.IMREAD_GRAYSCALE)
-    mt_result = cv2.matchTemplate(game, clan_mate, cv2.TM_CCOEFF_NORMED)
-    
-    w, h = clan_mate.shape[::-1]
-    loc = np.where( mt_result >= 0.6)
-    clicked = False
-    for pt in zip(*loc[::-1]):
-        # click the game window
-        if (clicked != True):
-            pyautogui.click(left + pt[0] / 2  + w / 4, top + pt[1] / 2 +  h / 4)
-            clicked = True
-            break
+def progress(game): 
+    poi = game[100:140, 500:700]
+    return poi
 
-def find_skill(game):
-    skill = cv2.imread("assets/needles/skills/warcry.png", cv2.IMREAD_GRAYSCALE)
-    mt_result = cv2.matchTemplate(game, skill, cv2.TM_CCOEFF_NORMED)
-    
-    w, h = skill.shape[::-1]
-    loc = np.where( mt_result >= 0.9)
-    clicked = False
-    for pt in zip(*loc[::-1]):
-        # click the game window
-        if (clicked != True):
-            pyautogui.click(left + pt[0] / 2  + w / 4, top + pt[1] / 2 +  h / 4 )
-            print("found:", pt)
-            clicked = True
-            break
-
-def find_fairy(game):
-    clan_mate = cv2.imread("assets/needles/fairy.png", cv2.IMREAD_GRAYSCALE)
-    mt_result = cv2.matchTemplate(game, clan_mate, cv2.TM_CCOEFF_NORMED)
-    
-    w, h = clan_mate.shape[::-1]
-    loc = np.where( mt_result >= 0.8)
-    clicked = False
-    for pt in zip(*loc[::-1]):
-        #click the game window
-        if (clicked != True):
-            print("find and click")
-            pyautogui.click(left + pt[0] / 2  + w / 4, top + pt[1] / 2 +  h / 4)
-            clicked = True
-            break
 
 with mss.mss() as sct:
     last_time = time.time()
@@ -74,10 +36,20 @@ with mss.mss() as sct:
         tt2 = sct.grab(monitor)
         game = np.array(tt2)
         game = cv2.cvtColor(game, cv2.COLOR_RGBA2GRAY)
+        vision = Vision(top, left, coff)
 
-        #find_fairy(game)
-        #find_company(game)
-        find_skill(game)
+        result = vision.find_fairy(game)
+        if (result != None):
+            pyautogui.click(result[0], result[1])   
+        result = vision.find_company(game)
+        if (result != None):
+            pyautogui.click(result[0], result[1])   
+        result = vision.find_skill(game)
+        if (result != None):
+            pyautogui.click(result[0], result[1])  
+        # result = vision.fire_thunder_ship(game)
+        # if (result != None):
+        #     pyautogui.click(result[0], result[1])    
 
         cv2.imshow('screen', game)
         print('fps ={}'.format(1/(time.time()-last_time)))
