@@ -43,7 +43,7 @@ def click_event(event, x, y, flags, params):
 if __name__=="__main__":
  
     # reading the image
-    img = cv2.imread('temp/1629781044.327878.png', 1)
+    img = cv2.imread('temp/1630279710.4881139.png', 1)
  
     # displaying the image
     cv2.imshow('image', img)

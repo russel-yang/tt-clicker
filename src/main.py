@@ -31,12 +31,13 @@ def progress(game):
 with mss.mss() as sct:
     last_time = time.time()
     monitor = {"top": top, "left": left, "width": constants.GAME_WINDOW_WIDTH, "height": constants.GAME_WINDOW_HEIGHT}
+    vision = Vision(top, left, coff)
 
     while True:
         tt2 = sct.grab(monitor)
         game = np.array(tt2)
         game = cv2.cvtColor(game, cv2.COLOR_RGBA2GRAY)
-        vision = Vision(top, left, coff)
+
 
         result = vision.find_fairy(game)
         if (result != None):
@@ -47,13 +48,21 @@ with mss.mss() as sct:
         result = vision.find_skill(game)
         if (result != None):
             pyautogui.click(result[0], result[1])  
-        # result = vision.fire_thunder_ship(game)
+        # result = vision.upgrade_heros(game)
         # if (result != None):
+        #     print(result)
         #     pyautogui.click(result[0], result[1])    
 
         cv2.imshow('screen', game)
-        print('fps ={}'.format(1/(time.time()-last_time)))
+        #print('fps ={}'.format(1/(time.time()-last_time)))
         last_time = time.time()
+        time.sleep(2)
+        # thunder shop
+        pyautogui.click(left + 307, top + 405)
+        # daggers
+        pyautogui.click(left + 258, top + 470)
+        pyautogui.click(left + 302, top + 492)
+        pyautogui.click(left + 350, top + 470)
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):
