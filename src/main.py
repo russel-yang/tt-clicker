@@ -7,19 +7,24 @@ import mss
 import constants
 from vision import Vision
 
+abyssal = True
+
 def findGameWindowPos():
     with mss.mss() as sct:
         full_screen = np.array(sct.grab({"top": 0, "left": 0, "width": 2560, "height": 1440}))
         coff = full_screen.shape[0] / 1440
         fs_gray = cv2.cvtColor(full_screen, cv2.COLOR_BGR2GRAY)
-        gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
+        if abyssal:
+            gear = cv2.imread("assets/needles/abyssal.png", cv2.IMREAD_GRAYSCALE)
+        else:
+            gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
         mt_result = cv2.matchTemplate(fs_gray, gear, cv2.TM_CCOEFF_NORMED)
         max_loc = cv2.minMaxLoc(mt_result)[3]
 
         x, y = max_loc
         left = x / coff
         top = y / coff
-    return (top, left, coff)
+    return (top - 98, left - 20, coff) if abyssal else (top , left, coff) 
 
 (top, left, coff) = findGameWindowPos()
 
@@ -38,7 +43,11 @@ with mss.mss() as sct:
         game = np.array(tt2)
         game = cv2.cvtColor(game, cv2.COLOR_RGBA2GRAY)
 
-
+        result = vision.find_nothanks(game)
+        if (result != None):
+            pyautogui.click(result[0], result[1])
+            continue   
+        
         result = vision.find_fairy(game)
         if (result != None):
             pyautogui.click(result[0], result[1])   
@@ -62,7 +71,7 @@ with mss.mss() as sct:
         pyautogui.click(left + 350, top + 470)
 
         # upgrade heros
-        vision.upgrade_heros()
+        #vision.upgrade_heros()
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):

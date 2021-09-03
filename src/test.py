@@ -10,20 +10,24 @@ from pynput.mouse import  Controller
 
 mouse = Controller()
 
+abyssal = True
 
 def findGameWindowPos():
     with mss.mss() as sct:
         full_screen = np.array(sct.grab({"top": 0, "left": 0, "width": 2560, "height": 1440}))
         coff = full_screen.shape[0] / 1440
         fs_gray = cv2.cvtColor(full_screen, cv2.COLOR_BGR2GRAY)
-        gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
+        if abyssal:
+            gear = cv2.imread("assets/needles/abyssal.png", cv2.IMREAD_GRAYSCALE)
+        else:
+            gear = cv2.imread("assets/needles/settings.png", cv2.IMREAD_GRAYSCALE)
         mt_result = cv2.matchTemplate(fs_gray, gear, cv2.TM_CCOEFF_NORMED)
         max_loc = cv2.minMaxLoc(mt_result)[3]
 
         x, y = max_loc
         left = x / coff
         top = y / coff
-    return (top, left, coff)
+    return (top - 98, left - 20, coff) if abyssal else (top , left, coff) 
 
 (top, left, coff) = findGameWindowPos()
 
@@ -46,10 +50,10 @@ def upgradeHeros():
     # time.sleep(0.1)
     # mouse.scroll(0, 8)
     #mouse.scroll(0,100)
-    pyautogui.doubleClick()
-    for i in range(0, 20):
-        pyautogui.vscroll(1)
-    pyautogui.doubleClick(left + 150, top + 1050)
+    #pyautogui.doubleClick()
+    # for i in range(0, 20):
+    #     pyautogui.vscroll(1)
+    # pyautogui.doubleClick(left + 150, top + 1050)
     # pyautogui.hscroll(500)
     # pyautogui.hscroll(600)
     # pyautogui.scroll(700)
@@ -85,7 +89,7 @@ with mss.mss() as sct:
     #print('fps ={}'.format(1/(time.time()-last_time)))
     last_time = time.time()
 
-    upgradeHeros() 
+    #upgradeHeros() 
 
 
     # # thunder shop

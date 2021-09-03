@@ -29,6 +29,12 @@ class Vision:
         pos = self.find_template(game, clan_mate, 0.6, start, end)
         return pos
 
+    def find_nothanks(self, game):
+        clan_mate = cv2.imread("assets/needles/nothanks.png", cv2.IMREAD_GRAYSCALE)
+        start, end = 1440, 1780
+        pos = self.find_template(game, clan_mate, 0.6, start, end)
+        return pos
+
     def find_skill(self,game):
         num = random.randrange(3)
         skill = cv2.imread(self.skills[num], cv2.IMREAD_GRAYSCALE)
