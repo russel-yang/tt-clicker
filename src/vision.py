@@ -8,9 +8,9 @@ class Vision:
         self.top = top
         self.left = left
         self.coff = coff
-        self.ts_upgrade_heros = time.time()
+        self.ts_last_hero_upgrade = time.time()
         self.hero_menu_open = False
-        self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png"]
+        self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
 
     def find_template(self, game, template, confidence = 0.6, start = 0, end=None):
         if (end == None):
@@ -47,17 +47,25 @@ class Vision:
         pos = self.find_template(game, thunder, 0.5)
         return pos
 
-    def upgrade_heros(self, game):
-        if (time.time() - self.ts_upgrade_heros > 10):
-            #open menu
-            if (self.hero_menu_open == False):
-                pyautogui.click(self.left+152, self.top+1052)
-                self.hero_menu_open = True
-            time.sleep(0.1)
-            hero_upgrade = cv2.imread("assets/needles/heroUpgrade.png", cv2.IMREAD_GRAYSCALE)
-            pos = self.find_template(game, hero_upgrade, 0.8, 1200)
-            self.ts_upgrade_heros = time.time()
-            return pos
-        return None
+    def upgrade_heros(self):
+        if (time.time() - self.ts_last_hero_upgrade) < 10:
+            return
+        pyautogui.doubleClick(self.left + 150, self.top + 1030)
+        for i in range(0, 5):
+            pyautogui.doubleClick(self.left + 500, self.top + 757)
+        for i in range(0, 5):
+            pyautogui.doubleClick(self.left + 500, self.top + 853)
+        for i in range(0, 5):
+            pyautogui.doubleClick(self.left + 500, self.top + 950)
+
+        time.sleep(0.1)
+        pyautogui.vscroll(1)
+        time.sleep(0.1)
+        # close the window
+        pyautogui.doubleClick(self.left + 150, self.top + 1030)
+
+        self.ts_last_hero_upgrade = time.time()
+
+
     def play(game):
         pass

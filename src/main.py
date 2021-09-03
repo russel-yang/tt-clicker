@@ -48,10 +48,7 @@ with mss.mss() as sct:
         result = vision.find_skill(game)
         if (result != None):
             pyautogui.click(result[0], result[1])  
-        # result = vision.upgrade_heros(game)
-        # if (result != None):
-        #     print(result)
-        #     pyautogui.click(result[0], result[1])    
+ 
 
         cv2.imshow('screen', game)
         #print('fps ={}'.format(1/(time.time()-last_time)))
@@ -63,6 +60,9 @@ with mss.mss() as sct:
         pyautogui.click(left + 258, top + 470)
         pyautogui.click(left + 302, top + 492)
         pyautogui.click(left + 350, top + 470)
+
+        # upgrade heros
+        vision.upgrade_heros()
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):
