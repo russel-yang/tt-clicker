@@ -72,6 +72,12 @@ class Vision:
 
         self.ts_last_hero_upgrade = time.time()
 
+    def prestiege(self):
+        pyautogui.click(self.left + 50, self.top + 1050, 2)
+        pass
+        
+    def upgrade_skills(self):
+        pass
 
     def play(game):
         pass
