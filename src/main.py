@@ -62,7 +62,7 @@ with mss.mss() as sct:
         pyautogui.click(left + 350, top + 470)
 
         # upgrade heros
-        vision.upgrade_heros()
+        #vision.upgrade_heros()
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):
