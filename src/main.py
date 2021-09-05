@@ -38,6 +38,8 @@ with mss.mss() as sct:
         game = np.array(tt2)
         game = cv2.cvtColor(game, cv2.COLOR_RGBA2GRAY)
 
+        if (vision.dismiss_dialog(game)):
+            continue
 
         result = vision.find_fairy(game)
         if (result != None):

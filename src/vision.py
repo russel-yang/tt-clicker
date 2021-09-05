@@ -13,6 +13,7 @@ class Vision:
         self.left = left
         self.coff = coff
         self.ts_last_hero_upgrade = time.time()
+        self.ts_last_dialog_check = time.time()
         self.hero_menu_open = False
         self.skills_bought = False
         self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
@@ -102,12 +103,7 @@ class Vision:
         shot = self.take_shot()
 
         # toggle full screen menu
-        half_screen = cv2.imread("assets/needles/menu/half-screen.png", cv2.IMREAD_GRAYSCALE)
-        pos = self.find_template(shot, half_screen, 0.9)
-        if pos != None:
-            pyautogui.click(pos[0], pos[1])
-            time.sleep(0.3)
-            shot = self.take_shot()
+        self.make_menu_fullscreen()
 
         prestige = cv2.imread("assets/needles/buy-skills/prestige.png", cv2.IMREAD_GRAYSCALE)
         start, end = 515, 715
@@ -121,9 +117,15 @@ class Vision:
 
     def prestige(self):
         pos = self.find_prestige()
-        pyautogui.click(pos[0] + 455, pos[1])
+        pyautogui.click(pos[0] + 450, pos[1])
         time.sleep(0.3)
-        self.make_menu_fullscreen()
+        
+        shot = self.take_shot()
+        first = cv2.imread("assets/needles/prestige/first.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, first, 0.9)
+        if (pos != None):
+            pyautogui.click(pos[0], pos[1])
+            time.sleep(0.3)
         #click the position directly
         pyautogui.click(self.left + 410, self.top + 840)
         time.sleep(10)
@@ -138,6 +140,17 @@ class Vision:
         # click the menu
         pyautogui.click(self.left + 40, self.top + 1044, 1)
         self.skills_bought = True
+
+    def dismiss_dialog(self, game):
+        if (time.time()- self.ts_last_dialog_check < 60):
+            return False
+        cancel = cv2.imread("assets/needles/buttons/cancel.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(game, cancel, 0.8)
+        self.ts_last_dialog_check  = time.time()
+        if (pos != None):
+            pyautogui.click(pos[0], pos[1])
+            return True
+        return False
 
     def buy_artifects(self):
         pyautogui.click(self.left + 450, self.top + 1050,2)
