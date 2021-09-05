@@ -1,7 +1,11 @@
+from PIL.Image import NONE
 import cv2
 import time
 import pyautogui
 import random
+import mss
+import constants
+import numpy as np
 
 class Vision:
     def __init__(self, top, left, coff) -> None:
@@ -10,6 +14,7 @@ class Vision:
         self.coff = coff
         self.ts_last_hero_upgrade = time.time()
         self.hero_menu_open = False
+        self.skills_bought = False
         self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
 
     def find_template(self, game, template, confidence = 0.6, start = 0, end=None):
@@ -65,7 +70,101 @@ class Vision:
         pyautogui.doubleClick(self.left + 150, self.top + 1030)
 
         self.ts_last_hero_upgrade = time.time()
+    
+    def take_shot(self):
+        with mss.mss() as sct:
+            monitor = {"top": self.top, "left": self.left, "width": constants.GAME_WINDOW_WIDTH, "height": constants.GAME_WINDOW_HEIGHT}
+            return cv2.cvtColor(np.array(sct.grab(monitor)),cv2.COLOR_RGBA2GRAY) 
 
+    def make_menu_fullscreen(self):
+        shot = self.take_shot()
+        # toggle full screen menu
+        half_screen = cv2.imread("assets/needles/menu/half-screen.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, half_screen, 0.9)
+        if pos != None:
+            pyautogui.click(pos[0], pos[1])
+            time.sleep(0.3)
+
+    def extra_clicks(self):
+        # thunder shop
+        pyautogui.click(self.left + 307, self.top + 405)
+        # daggers
+        pyautogui.click(self.left + 258, self.top + 470)
+        pyautogui.click(self.left + 302, self.top + 492)
+        pyautogui.click(self.left + 350, self.top + 470)
+        # company extra click
+        pyautogui.click(self.left+218, self.top + 540)
+
+    def find_prestige(self):
+        # click the menu
+        pyautogui.click(self.left + 40, self.top + 1044, 2)
+        time.sleep(0.3)
+        shot = self.take_shot()
+
+        # toggle full screen menu
+        half_screen = cv2.imread("assets/needles/menu/half-screen.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, half_screen, 0.9)
+        if pos != None:
+            pyautogui.click(pos[0], pos[1])
+            time.sleep(0.3)
+            shot = self.take_shot()
+
+        prestige = cv2.imread("assets/needles/buy-skills/prestige.png", cv2.IMREAD_GRAYSCALE)
+        start, end = 515, 715
+        pos = self.find_template(shot, prestige, 0.95, start, end)
+        while (pos == None):
+            pyautogui.vscroll(1)
+            time.sleep(1)
+            shot = self.take_shot()
+            pos = self.find_template(shot, prestige, 0.9)
+        return pos
+
+    def prestige(self):
+        pos = self.find_prestige()
+        pyautogui.click(pos[0] + 455, pos[1])
+        time.sleep(0.3)
+        self.make_menu_fullscreen()
+        #click the position directly
+        pyautogui.click(self.left + 410, self.top + 840)
+        time.sleep(10)
+
+    def buy_skills(self, clicks):
+        if self.skills_bought:
+            return
+        pos = self.find_prestige()
+        if (pos != None):
+            for y in [180, 508, 600, 690, 780, 880, 980]:
+                pyautogui.click(self.left + 500, self.top + y, clicks, 0.1)
+        # click the menu
+        pyautogui.click(self.left + 40, self.top + 1044, 1)
+        self.skills_bought = True
+
+    def buy_artifects(self):
+        pyautogui.click(self.left + 450, self.top + 1050,2)
+        time.sleep(0.4)
+        self.make_menu_fullscreen()
+
+        # reset to top by book of shadow
+        bos = cv2.imread("assets/needles/artifacts/bos.png", cv2.IMREAD_GRAYSCALE)
+        shot = self.take_shot()
+        start, end = 520, 720
+        pos = self.find_template(shot, bos, 0.9, start, end)
+        while (pos == None):
+            pyautogui.vscroll(1)
+            time.sleep(0.5)
+            shot = self.take_shot()
+            pos = self.find_template(shot, bos, 0.9, start, end)
+
+        #cv2.imwrite("temp/{}.png".format(time.time()), shot)
+        print(pos)
+
+        #click in the menu
+        pyautogui.click(self.left + 285, self.top + 100)
+        time.sleep(0.2)
+        for _ in range(0,1):
+            pyautogui.vscroll(-1)
+            time.sleep(0.5)
+        
 
     def play(game):
         pass

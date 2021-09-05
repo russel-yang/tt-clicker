@@ -84,8 +84,9 @@ with mss.mss() as sct:
     cv2.imshow('screen', game)
     #print('fps ={}'.format(1/(time.time()-last_time)))
     last_time = time.time()
+    vision.buy_artifects()
 
-    upgradeHeros() 
+    #upgradeHeros() 
 
 
     # # thunder shop
@@ -96,7 +97,11 @@ with mss.mss() as sct:
     # pyautogui.click(left + 350, top + 470)
 
     key = cv2.waitKey(0) & 0xFF
-    cv2.imwrite("temp/{}.png".format(time.time()), game)
+    if key == ord("q"):
+        cv2.destroyAllWindows()
+    elif key == ord("s"):
+        cv2.imwrite("temp/{}.png".format(time.time()), game)
+    #cv2.imwrite("temp/{}.png".format(time.time()), game)
 
 
 

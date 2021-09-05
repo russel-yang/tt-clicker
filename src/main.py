@@ -54,13 +54,8 @@ with mss.mss() as sct:
         #print('fps ={}'.format(1/(time.time()-last_time)))
         last_time = time.time()
         time.sleep(2)
-        # thunder shop
-        pyautogui.click(left + 307, top + 405)
-        # daggers
-        pyautogui.click(left + 258, top + 470)
-        pyautogui.click(left + 302, top + 492)
-        pyautogui.click(left + 350, top + 470)
 
+        vision.extra_clicks()
         # upgrade heros
         #vision.upgrade_heros()
 
