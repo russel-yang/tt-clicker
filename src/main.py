@@ -48,6 +48,9 @@ with mss.mss() as sct:
             pyautogui.click(result[0], result[1])
             continue   
         
+        if (vision.dismiss_dialog(game)):
+            continue
+
         result = vision.find_fairy(game)
         if (result != None):
             pyautogui.click(result[0], result[1])   
@@ -63,17 +66,10 @@ with mss.mss() as sct:
         #print('fps ={}'.format(1/(time.time()-last_time)))
         last_time = time.time()
         time.sleep(2)
-        # thunder shop
-        pyautogui.click(left + 307, top + 405)
-        # daggers
-        pyautogui.click(left + 258, top + 470)
-        pyautogui.click(left + 302, top + 492)
-        pyautogui.click(left + 350, top + 470)
-        # company extra click
-        pyautogui.click(left+218, top + 540)
 
+        vision.extra_clicks()
         # upgrade heros
-        # vision.upgrade_heros()
+        #vision.upgrade_heros()
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):
