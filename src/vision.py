@@ -26,6 +26,7 @@ class Vision:
         w, h = template.shape[::-1]
         #loc = np.where( mt_result >= confidence)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
+        #print(max_val, max_val)
 
         return (self.left + max_loc[0] / self.coff + w / self.coff / 2, self.top + start / self.coff + max_loc[1] / self.coff +  h / self.coff / 2) if max_val > confidence else None
 
@@ -127,8 +128,8 @@ class Vision:
             pyautogui.click(pos[0], pos[1])
             time.sleep(0.3)
         #click the position directly
-        pyautogui.click(self.left + 410, self.top + 840)
-        time.sleep(10)
+        pyautogui.click(self.left + 410, self.top + 800)
+        time.sleep(20)
 
     def buy_skills(self, clicks):
         if self.skills_bought:
@@ -151,6 +152,22 @@ class Vision:
             pyautogui.click(pos[0], pos[1])
             return True
         return False
+    
+    def enchant_artifect(self):
+        # find enchantmet
+        shot = self.take_shot()
+        enchant = cv2.imread("assets/needles/buttons/enchant.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, enchant, 0.9)
+        if (pos != None):
+            pyautogui.click(pos[0], pos[1])
+            time.sleep(0.3)
+            shot = self.take_shot()
+            perform_enchant = cv2.imread("assets/needles/buttons/perform-enchant.png", cv2.IMREAD_GRAYSCALE)
+            pos = self.find_template(shot, perform_enchant, 0.8)
+            if (pos != None):
+                pyautogui.click(pos[0], pos[1])
+                pyautogui.sleep(1)
+                pyautogui.click(pos[0], pos[1], 2, 0.2)
 
     def buy_artifects(self):
         pyautogui.click(self.left + 450, self.top + 1050,2)
@@ -168,15 +185,20 @@ class Vision:
             shot = self.take_shot()
             pos = self.find_template(shot, bos, 0.9, start, end)
 
-        #cv2.imwrite("temp/{}.png".format(time.time()), shot)
-        print(pos)
-
         #click in the menu
         pyautogui.click(self.left + 285, self.top + 100)
         time.sleep(0.2)
-        for _ in range(0,1):
-            pyautogui.vscroll(-1)
-            time.sleep(0.5)
+        self.enchant_artifect()
+
+        for x in range(0,8):
+            pyautogui.click(self.left + 500, self.top + 300 + x * 100, 1, 0.2)
+
+        # close the menu
+        pyautogui.click(self.left + 450, self.top + 1050,1)
+        
+        # for _ in range(0,1):
+        #     pyautogui.vscroll(-1)
+        #     time.sleep(0.5)
         
 
     def play(game):

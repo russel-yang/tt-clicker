@@ -84,8 +84,10 @@ with mss.mss() as sct:
     cv2.imshow('screen', game)
     #print('fps ={}'.format(1/(time.time()-last_time)))
     last_time = time.time()
-    vision.buy_skills(30)
-    #vision.buy_artifects()
+    vision.prestige()
+    vision.buy_artifects()
+    vision.buy_skills(35)
+
 
     #upgradeHeros() 
 
