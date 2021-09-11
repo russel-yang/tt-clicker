@@ -68,6 +68,9 @@ with mss.mss() as sct:
         time.sleep(2)
 
         vision.extra_clicks()
+
+        # prestige?
+        vision.restart()
         # upgrade heros
         #vision.upgrade_heros()
 

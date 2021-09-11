@@ -14,6 +14,7 @@ class Vision:
         self.coff = coff
         self.ts_last_hero_upgrade = time.time()
         self.ts_last_dialog_check = time.time()
+        self.ts_last_prestige = time.time()
         self.hero_menu_open = False
         self.skills_bought = False
         self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
@@ -104,6 +105,8 @@ class Vision:
         pyautogui.click(self.left + 350, self.top + 470)
         # company extra click
         pyautogui.click(self.left+218, self.top + 540)
+        # pet for boss gold
+        pyautogui.click(self.left+358, self.top + 500)
 
     def find_prestige(self):
         # click the menu
@@ -136,7 +139,7 @@ class Vision:
             pyautogui.click(pos[0], pos[1])
             time.sleep(0.3)
         #click the position directly
-        pyautogui.click(self.left + 410, self.top + 800)
+        pyautogui.click(self.left + 410, self.top + 780)
         time.sleep(20)
 
     def buy_skills(self, clicks):
@@ -160,6 +163,18 @@ class Vision:
             pyautogui.click(pos[0], pos[1])
             return True
         return False
+    
+    def restart(self):
+        if time.time() - self.ts_last_prestige > 450:
+            time.sleep(5)
+            self.skills_bought = False
+            self.prestige()
+            time.sleep(2)
+            self.buy_artifects()
+            time.sleep(2)
+            self.buy_skills(35)
+            self.ts_last_prestige = time.time()
+
     
     def enchant_artifect(self):
         # find enchantmet
@@ -186,7 +201,7 @@ class Vision:
         bos = cv2.imread("assets/needles/artifacts/bos.png", cv2.IMREAD_GRAYSCALE)
         shot = self.take_shot()
         start, end = 520, 720
-        pos = self.find_template(shot, bos, 0.9, start, end)
+        pos = self.find_template(shot, bos, 0.7, start, end)
         while (pos == None):
             pyautogui.vscroll(1)
             time.sleep(0.5)

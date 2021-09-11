@@ -84,8 +84,6 @@ with mss.mss() as sct:
     #     print(result)
     #     pyautogui.click(result[0], result[1])   
     # 
-
-    vision.prestiege()
     
     cv2.imshow('screen', game)
     #print('fps ={}'.format(1/(time.time()-last_time)))
@@ -93,6 +91,7 @@ with mss.mss() as sct:
     vision.prestige()
     vision.buy_artifects()
     vision.buy_skills(35)
+    #vision.upgrade_heros()
 
     #upgradeHeros() 
 
