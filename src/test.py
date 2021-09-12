@@ -10,7 +10,7 @@ from pynput.mouse import  Controller
 
 mouse = Controller()
 
-abyssal = True
+abyssal = False
 
 def findGameWindowPos():
     with mss.mss() as sct:

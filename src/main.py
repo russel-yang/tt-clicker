@@ -7,7 +7,7 @@ import mss
 import constants
 from vision import Vision
 
-abyssal = True
+abyssal = False
 
 def findGameWindowPos():
     with mss.mss() as sct:

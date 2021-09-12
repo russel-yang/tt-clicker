@@ -19,6 +19,9 @@ class Vision:
         self.skills_bought = False
         self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
 
+    def to_screen_loc(self, loc, w, h, start):
+        return (self.left + loc[0] / self.coff + w / self.coff / 2, self.top + start / self.coff + loc[1] / self.coff +  h / self.coff / 2)
+    
     def find_template(self, game, template, confidence = 0.6, start = 0, end=None):
         if (end == None):
             end = len(game)
@@ -29,7 +32,7 @@ class Vision:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
         #print(max_val, max_val)
 
-        return (self.left + max_loc[0] / self.coff + w / self.coff / 2, self.top + start / self.coff + max_loc[1] / self.coff +  h / self.coff / 2) if max_val > confidence else None
+        return self.to_screen_loc(max_loc, w, h, start) if max_val > confidence else None
 
     def find_company(self, game):
         clan_mate = cv2.imread("assets/needles/company.png", cv2.IMREAD_GRAYSCALE)
