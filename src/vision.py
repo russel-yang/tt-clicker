@@ -22,17 +22,18 @@ class Vision:
     def to_screen_loc(self, loc, w, h, start):
         return (self.left + loc[0] / self.coff + w / self.coff / 2, self.top + start / self.coff + loc[1] / self.coff +  h / self.coff / 2)
     
-    def find_template(self, game, template, confidence = 0.6, start = 0, end=None):
+    def find_template(self, game, template, confidence = 0.6, start = 0, end=None, multiple=False):
         if (end == None):
             end = len(game)
         mt_result = cv2.matchTemplate(game[start:end], template, cv2.TM_CCOEFF_NORMED)
         
         w, h = template.shape[::-1]
-        #loc = np.where( mt_result >= confidence)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
-        #print(max_val, max_val)
-
-        return self.to_screen_loc(max_loc, w, h, start) if max_val > confidence else None
+        if multiple:
+            loc = np.where( mt_result >= confidence)
+            return loc
+        else:
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
+            return self.to_screen_loc(max_loc, w, h, start) if max_val > confidence else None
 
     def find_company(self, game):
         clan_mate = cv2.imread("assets/needles/company.png", cv2.IMREAD_GRAYSCALE)
