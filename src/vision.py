@@ -29,8 +29,11 @@ class Vision:
         
         w, h = template.shape[::-1]
         if multiple:
+            positions = []
             loc = np.where( mt_result >= confidence)
-            return loc
+            for pt in zip(*loc[::-1]):
+                positions.append(self.to_screen_loc(pt, w, h, start))
+            return positions
         else:
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
             return self.to_screen_loc(max_loc, w, h, start) if max_val > confidence else None
@@ -66,22 +69,23 @@ class Vision:
         return pos
 
     def upgrade_heros(self):
-        if (time.time() - self.ts_last_hero_upgrade) < 10:
+        if (time.time() - self.ts_last_hero_upgrade) < 30:
             return
         pyautogui.doubleClick(self.left + 150, self.top + 1030)
-        for i in range(0, 5):
-            pyautogui.doubleClick(self.left + 500, self.top + 757)
-        for i in range(0, 5):
-            pyautogui.doubleClick(self.left + 500, self.top + 853)
-        for i in range(0, 5):
-            pyautogui.doubleClick(self.left + 500, self.top + 950)
-
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyautogui.vscroll(1)
-        time.sleep(0.1)
+        time.sleep(0.3)
+
+        # take shot and find skills to upgrade
+        shot = self.take_shot()
+        coins = cv2.imread("assets/needles/heros/spend-coins.png", cv2.IMREAD_GRAYSCALE)
+        positions = self.find_template(shot, coins, 0.9, 0, None, True)
+        for pos in positions:
+            pyautogui.click(pos[0], pos[1])
+
         # close the window
         pyautogui.doubleClick(self.left + 150, self.top + 1030)
-
+        time.sleep(0.2)
         self.ts_last_hero_upgrade = time.time()
     
     def take_shot(self):
