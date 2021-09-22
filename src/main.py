@@ -69,10 +69,10 @@ with mss.mss() as sct:
 
         vision.extra_clicks()
 
-        # prestige?
-        #vision.restart()
         # upgrade heros
         vision.upgrade_heros()
+        # prestige?
+        vision.restart()
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):

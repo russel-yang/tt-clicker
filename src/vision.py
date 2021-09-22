@@ -17,6 +17,7 @@ class Vision:
         self.ts_last_prestige = time.time()
         self.hero_menu_open = False
         self.skills_bought = False
+        self.printed = set()
         self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
 
     def to_screen_loc(self, loc, w, h, start):
@@ -30,9 +31,14 @@ class Vision:
         w, h = template.shape[::-1]
         if multiple:
             positions = []
+            last_loc = None
             loc = np.where( mt_result >= confidence)
             for pt in zip(*loc[::-1]):
-                positions.append(self.to_screen_loc(pt, w, h, start))
+                loc = self.to_screen_loc(pt, w, h, start)
+                # only use point distance far enough
+                if last_loc == None or (abs(loc[0]-last_loc[0]) > 5 or abs(loc[1]-last_loc[1]) > 5):
+                    positions.append(loc)
+                last_loc = loc
             return positions
         else:
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(mt_result)
@@ -69,17 +75,19 @@ class Vision:
         return pos
 
     def upgrade_heros(self):
-        if (time.time() - self.ts_last_hero_upgrade) < 30:
+        if (time.time() - self.ts_last_hero_upgrade) < 20:
             return
         pyautogui.doubleClick(self.left + 150, self.top + 1030)
-        time.sleep(0.2)
+        time.sleep(0.5)
+        self.make_menu_fullscreen()
+        time.sleep(0.5)
         pyautogui.vscroll(1)
-        time.sleep(0.3)
+        time.sleep(1)
 
         # take shot and find skills to upgrade
         shot = self.take_shot()
         coins = cv2.imread("assets/needles/heros/spend-coins.png", cv2.IMREAD_GRAYSCALE)
-        positions = self.find_template(shot, coins, 0.9, 0, None, True)
+        positions = self.find_template(shot, coins, 0.8, 0, None, True)
         for pos in positions:
             pyautogui.click(pos[0], pos[1])
 
@@ -102,7 +110,7 @@ class Vision:
         pos = self.find_template(shot, half_screen, 0.9)
         if pos != None:
             pyautogui.click(pos[0], pos[1])
-            time.sleep(0.3)
+            time.sleep(0.5)
 
     def extra_clicks(self):
         # thunder shop
@@ -117,9 +125,13 @@ class Vision:
         pyautogui.click(self.left+358, self.top + 500)
 
     def find_prestige(self):
+        shot = self.take_shot()
+        pos = self.find_nothanks(shot)
+        if pos != None:
+            pyautogui.click(pos[0], pos[1])
         # click the menu
         pyautogui.click(self.left + 40, self.top + 1044, 2)
-        time.sleep(0.3)
+        time.sleep(0.5)
         shot = self.take_shot()
 
         # toggle full screen menu
@@ -128,26 +140,34 @@ class Vision:
         prestige = cv2.imread("assets/needles/buy-skills/prestige.png", cv2.IMREAD_GRAYSCALE)
         start, end = 515, 715
         pos = self.find_template(shot, prestige, 0.95, start, end)
-        while (pos == None):
+        tries = 0
+        while (pos == None) and tries < 5:
             pyautogui.vscroll(1)
             time.sleep(1)
             shot = self.take_shot()
             pos = self.find_template(shot, prestige, 0.9)
+            tries = tries + 1
         return pos
 
     def prestige(self):
         pos = self.find_prestige()
+        if pos == None:
+            return
         pyautogui.click(pos[0] + 450, pos[1])
-        time.sleep(0.3)
+        time.sleep(3)
         
         shot = self.take_shot()
         first = cv2.imread("assets/needles/prestige/first.png", cv2.IMREAD_GRAYSCALE)
         pos = self.find_template(shot, first, 0.9)
         if (pos != None):
             pyautogui.click(pos[0], pos[1])
-            time.sleep(0.3)
+            time.sleep(3)
         #click the position directly
-        pyautogui.click(self.left + 410, self.top + 780)
+        shot = self.take_shot()
+        first = cv2.imread("assets/needles/prestige/second.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, first, 0.9)
+        if pos != None:
+            pyautogui.click(pos[0], pos[1])
         time.sleep(20)
 
     def buy_skills(self, clicks):
@@ -173,7 +193,11 @@ class Vision:
         return False
     
     def restart(self):
-        if time.time() - self.ts_last_prestige > 450:
+        elapse_time = int(time.time() - self.ts_last_prestige) // 60
+        if not (elapse_time in self.printed):
+            print(f'run time {elapse_time} minutes')
+            self.printed.add(elapse_time)
+        if elapse_time > 45:
             time.sleep(5)
             self.skills_bought = False
             self.prestige()
@@ -182,6 +206,13 @@ class Vision:
             time.sleep(2)
             self.buy_skills(35)
             self.ts_last_prestige = time.time()
+            self.printed.clear()
+
+    def find_max_artifect_pos(self):
+        shot = self.take_shot()
+        ma = cv2.imread("assets/needles/artifacts/max.png", cv2.IMREAD_GRAYSCALE)
+        pos = self.find_template(shot, ma, 0.95)
+        return pos 
 
     
     def enchant_artifect(self):
@@ -199,6 +230,14 @@ class Vision:
                 pyautogui.click(pos[0], pos[1])
                 pyautogui.sleep(1)
                 pyautogui.click(pos[0], pos[1], 2, 0.2)
+    
+    def upgrade_artifects(self):
+        ub = cv2.imread("assets/needles/artifacts/upgrade.png", cv2.IMREAD_GRAYSCALE)
+        shot = self.take_shot()
+        positions = self.find_template(shot, ub, 0.85, 0 , None, True)
+        for pt in positions:
+            pyautogui.click(pt[0], pt[1])
+            time.sleep(0.1)
 
     def buy_artifects(self):
         pyautogui.click(self.left + 450, self.top + 1050,2)
@@ -221,16 +260,15 @@ class Vision:
         time.sleep(0.2)
         self.enchant_artifect()
 
-        for x in range(0,8):
-            pyautogui.click(self.left + 500, self.top + 300 + x * 100, 1, 0.2)
-
-        # close the menu
+        max_artifect_pos = self.find_max_artifect_pos()
+        while max_artifect_pos == None:
+            self.upgrade_artifects()
+            pyautogui.vscroll(-2)
+            time.sleep(4)
+            max_artifect_pos = self.find_max_artifect_pos()
+        self.upgrade_artifects()
+        #close the menu
         pyautogui.click(self.left + 450, self.top + 1050,1)
         
-        # for _ in range(0,1):
-        #     pyautogui.vscroll(-1)
-        #     time.sleep(0.5)
-        
-
     def play(game):
         pass
