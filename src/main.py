@@ -7,7 +7,7 @@ import mss
 import constants
 from vision import Vision
 
-abyssal = False
+abyssal = True
 
 def findGameWindowPos():
     with mss.mss() as sct:
@@ -36,7 +36,7 @@ def progress(game):
 with mss.mss() as sct:
     last_time = time.time()
     monitor = {"top": top, "left": left, "width": constants.GAME_WINDOW_WIDTH, "height": constants.GAME_WINDOW_HEIGHT}
-    vision = Vision(top, left, coff)
+    vision = Vision(top, left, coff, abyssal)
 
     while True:
         tt2 = sct.grab(monitor)
@@ -59,20 +59,21 @@ with mss.mss() as sct:
             pyautogui.click(result[0], result[1])   
         result = vision.find_skill(game)
         if (result != None):
-            pyautogui.click(result[0], result[1])  
+            pyautogui.click(result[0], result[1], 5, 0.3)  
  
 
         cv2.imshow('screen', game)
         #print('fps ={}'.format(1/(time.time()-last_time)))
         last_time = time.time()
-        time.sleep(2)
+
 
         vision.extra_clicks()
 
         # upgrade heros
-        vision.upgrade_heros()
+        #vision.upgrade_heros()
         # prestige?
         vision.restart()
+        time.sleep(2)
 
         key = cv2.waitKey(25) & 0xFF
         if key == ord("q"):

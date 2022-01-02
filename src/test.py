@@ -10,7 +10,7 @@ from pynput.mouse import  Controller
 
 mouse = Controller()
 
-abyssal = False
+abyssal = True
 
 def findGameWindowPos():
     with mss.mss() as sct:
@@ -62,7 +62,7 @@ def upgradeHeros():
 with mss.mss() as sct:
     last_time = time.time()
     monitor = {"top": top, "left": left, "width": constants.GAME_WINDOW_WIDTH, "height": constants.GAME_WINDOW_HEIGHT}
-    vision = Vision(top, left, coff)
+    vision = Vision(top, left, coff, abyssal)
 
 
     tt2 = sct.grab(monitor)
@@ -90,7 +90,7 @@ with mss.mss() as sct:
     last_time = time.time()
     #vision.prestige()
     vision.buy_artifects()
-    vision.buy_skills(35)
+    #vision.buy_skills(35)
     #vision.upgrade_heros()
 
     #upgradeHeros() 

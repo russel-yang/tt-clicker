@@ -8,7 +8,7 @@ import constants
 import numpy as np
 
 class Vision:
-    def __init__(self, top, left, coff) -> None:
+    def __init__(self, top, left, coff, abysmal) -> None:
         self.top = top
         self.left = left
         self.coff = coff
@@ -18,7 +18,11 @@ class Vision:
         self.hero_menu_open = False
         self.skills_bought = False
         self.printed = set()
-        self.skills = ["assets/needles/skills/warcry.png", "assets/needles/skills/shadowclone.png", "assets/needles/skills/deadlystrike.png", "assets/needles/skills/thundership.png"]
+        self.abysmal = abysmal
+        self.skills = ["assets/needles/skills/warcry.png", 
+            "assets/needles/skills/shadowclone.png", 
+            "assets/needles/skills/deadlystrike.png", 
+            "assets/needles/skills/thundership.png"]
 
     def to_screen_loc(self, loc, w, h, start):
         return (self.left + loc[0] / self.coff + w / self.coff / 2, self.top + start / self.coff + loc[1] / self.coff +  h / self.coff / 2)
@@ -57,7 +61,7 @@ class Vision:
         return pos
 
     def find_skill(self,game):
-        num = random.randrange(3)
+        num = random.randrange(4)
         skill = cv2.imread(self.skills[num], cv2.IMREAD_GRAYSCALE)
         start, end = 1800, 2036
         pos = self.find_template(game, skill, 0.8, start, end)
@@ -66,13 +70,9 @@ class Vision:
     def find_fairy(self,game):
         fairy = cv2.imread("assets/needles/fairy.png", cv2.IMREAD_GRAYSCALE)
         start, end = 200, 900
-        pos = self.find_template(game, fairy, 0.7, start, end)
+        pos = self.find_template(game, fairy, 0.5, start, end)
         return pos if pos != None and pos[0] - self.left > 150 else None
 
-    def fire_thunder_ship(self, game):
-        thunder = cv2.imread("assets/needles/skills/fire_thunder_ship.png", cv2.IMREAD_GRAYSCALE)
-        pos = self.find_template(game, thunder, 0.5)
-        return pos
 
     def upgrade_heros(self):
         if (time.time() - self.ts_last_hero_upgrade) < 20:
@@ -90,10 +90,17 @@ class Vision:
         positions = self.find_template(shot, coins, 0.8, 0, None, True)
         for pos in positions:
             pyautogui.click(pos[0], pos[1])
+        time.sleep(1)
+        shot = self.take_shot()
+        close = cv2.imread("assets/needles/buttons/close.png", cv2.IMREAD_GRAYSCALE)
+        closePos =  self.find_template(shot, close)
+        if closePos != None:
+            pyautogui.click(closePos[0], closePos[1])
+        pyautogui.sleep(0.5)
 
         # close the window
         pyautogui.doubleClick(self.left + 150, self.top + 1030)
-        time.sleep(0.2)
+        time.sleep(2)
         self.ts_last_hero_upgrade = time.time()
     
     def take_shot(self):
@@ -101,8 +108,6 @@ class Vision:
             monitor = {"top": self.top, "left": self.left, "width": constants.GAME_WINDOW_WIDTH, "height": constants.GAME_WINDOW_HEIGHT}
             return cv2.cvtColor(np.array(sct.grab(monitor)),cv2.COLOR_RGBA2GRAY) 
 
-    def upgrade_skills(self):
-        pass
     def make_menu_fullscreen(self):
         shot = self.take_shot()
         # toggle full screen menu
@@ -179,6 +184,7 @@ class Vision:
                 pyautogui.click(self.left + 500, self.top + y, clicks, 0.1)
         # click the menu
         pyautogui.click(self.left + 40, self.top + 1044, 1)
+        time.sleep(2)
         self.skills_bought = True
 
     def dismiss_dialog(self, game):
@@ -197,13 +203,13 @@ class Vision:
         if not (elapse_time in self.printed):
             print(f'run time {elapse_time} minutes')
             self.printed.add(elapse_time)
-        if elapse_time > 45:
+        if elapse_time > 11:
             time.sleep(5)
             self.skills_bought = False
             self.prestige()
-            time.sleep(2)
+            time.sleep(3)
             self.buy_artifects()
-            time.sleep(2)
+            time.sleep(3)
             self.buy_skills(35)
             self.ts_last_prestige = time.time()
             self.printed.clear()
@@ -232,9 +238,9 @@ class Vision:
                 pyautogui.click(pos[0], pos[1], 2, 0.2)
     
     def upgrade_artifects(self):
-        ub = cv2.imread("assets/needles/artifacts/upgrade.png", cv2.IMREAD_GRAYSCALE)
+        ub = cv2.imread("assets/needles/artifacts/ab-upgrade.png", cv2.IMREAD_GRAYSCALE) if self.abysmal else cv2.imread("assets/needles/artifacts/upgrade.png", cv2.IMREAD_GRAYSCALE)
         shot = self.take_shot()
-        positions = self.find_template(shot, ub, 0.85, 0 , None, True)
+        positions = self.find_template(shot, ub, 0.7, 0 , None, True)
         for pt in positions:
             pyautogui.click(pt[0], pt[1])
             time.sleep(0.1)
