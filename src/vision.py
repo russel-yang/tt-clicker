@@ -203,7 +203,7 @@ class Vision:
         if not (elapse_time in self.printed):
             print(f'run time {elapse_time} minutes')
             self.printed.add(elapse_time)
-        if elapse_time > 11:
+        if elapse_time > 18:
             time.sleep(5)
             self.skills_bought = False
             self.prestige()
